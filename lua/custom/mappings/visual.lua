@@ -2,6 +2,8 @@ local map = function(keys, func, desc)
   vim.keymap.set('v', keys, func, { desc = desc })
 end
 
+-- map('<leader>/', ':norm gc', 'Yank to the end of the line')
+
 map('*', 'y/\\V<C-r>"<CR>', 'Search for selection (forward)')
 map('#', 'y?\\V<C-r>"<CR>', 'Search for selection (backward)')
 
