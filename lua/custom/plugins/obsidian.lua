@@ -24,6 +24,9 @@ return {
         date_format = '%Y-%m-%d',
         time_format = '%H:%M',
       },
+      ui = {
+        enable = false,
+      },
       workspaces = {
         {
           name = 'personal',

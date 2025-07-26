@@ -349,8 +349,9 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>sh', builtin.help_tags, { desc = '[S]earch [H]elp' })
       vim.keymap.set('n', '<leader>sk', builtin.keymaps, { desc = '[S]earch [K]eymaps' })
       vim.keymap.set('n', '<leader>sf', builtin.find_files, { desc = '[S]earch [F]iles' })
-      -- I need something like this
-      -- vim.keymap.set('n', '<leader>sr', builtin.find_files, { desc = '[S]earch [R]elative Files' })
+      vim.keymap.set('n', '<leader>sa', function()
+        builtin.find_files { follow = true, no_ignore = true, hidden = true }
+      end, { desc = '[S]earch [A]ll Files' })
       vim.keymap.set('n', '<leader>ss', builtin.lsp_document_symbols, { desc = '[S]earch Document [S]ymbols' })
       vim.keymap.set('n', '<leader>sw', builtin.grep_string, { desc = '[S]earch current [W]ord' })
       vim.keymap.set('n', '<leader>sg', builtin.live_grep, { desc = '[S]earch by [G]rep' })
@@ -390,6 +391,10 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>sn', function()
         builtin.find_files { cwd = vim.fn.stdpath 'config' }
       end, { desc = '[S]earch [N]eovim files' })
+
+      vim.keymap.set('n', '<leader>so', function()
+        builtin.find_files { cwd = '~/Obsidian/' }
+      end, { desc = '[S]earch [O]bsidian files' })
     end,
   },
 
