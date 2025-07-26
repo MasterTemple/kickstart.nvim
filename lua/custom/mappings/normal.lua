@@ -17,21 +17,34 @@ map('<M-p>', ':cprev<CR>', 'Quick switcher (prev)')
 map('<M-n>', ':cnext<CR>', 'Quick switcher (next)')
 
 map('<leader>li', '<cmd>lua vim.diagnostic.open_float()<CR>', 'Show LSP Info')
-map('<leader>in', '<cmd>Telescope symbols<CR>', 'Insert Greek letter')
--- fix typo
-map('<leader>tp', '<cmd>Telescope spell_suggest<CR>', 'Fix typo')
 
 map('<S-h>', ':bprev<CR>', 'Previous tab')
 map('<S-l>', ':bnext<CR>', 'Next tab')
 
-map('<A-h>', ':lua require("harpoon.ui").nav_prev()<CR>', 'Harpoon: Previous')
-map('<A-l>', ':lua require("harpoon.ui").nav_next()<CR>', 'Harpoon: Next')
+-- perhaps A is Shift + Alt?
+-- map('<A-h>', ':lua require("harpoon.ui").nav_prev()<CR>', 'Harpoon: Previous')
+-- map('<A-l>', ':lua require("harpoon.ui").nav_next()<CR>', 'Harpoon: Next')
 
 ---------------
 -- Telescope --
 ---------------
 
-map('<leader>ob', ':Telescope bookmarks<CR>', 'Open Bookmark')
+-- map('<leader>;', '<cmd>Telescope <CR>', 'Open Telescope')
+-- map('<leader>sm', '<cmd> Telescope marks <CR>', '[S]earch [M]arks')
+--
+-- map('<leader>ob', ':Telescope bookmarks<CR>', 'Open Bookmark')
+-- map('<leader>tp', '<cmd>Telescope spell_suggest<CR>', 'Fix typo')
+--
+-- map('<leader>ff', '<cmd> Telescope find_files <CR>', 'Find files')
+-- map('<leader>fa', '<cmd> Telescope find_files follow=true no_ignore=true hidden=true <CR>', 'Find all')
+-- map('<leader>fs', '<cmd> Telescope lsp_document_symbols <CR>', 'Find symbols')
+-- map('<leader>fd', '<cmd> Telescope diagnostics <CR>', 'Find symbols')
+-- map('<leader>fw', '<cmd> Telescope live_grep <CR>', 'Live grep')
+-- map('<leader>fb', '<cmd> Telescope buffers <CR>', 'Find buffers')
+-- map('<leader>fh', '<cmd> Telescope help_tags <CR>', 'Help page')
+-- map('<leader>fo', '<cmd> Telescope oldfiles <CR>', 'Find oldfiles')
+-- map('<leader>fo', '<cmd> Telescope find_files cwd=~/Obsidian/ <CR>', 'Find obsidian files')
+-- map('<leader>fz', '<cmd> Telescope current_buffer_fuzzy_find <CR>', 'Find in current buffer')
 
 ----------
 -- TMUX --
