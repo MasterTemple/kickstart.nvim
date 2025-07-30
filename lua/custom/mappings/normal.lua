@@ -20,6 +20,8 @@ map('<leader>li', '<cmd>lua vim.diagnostic.open_float()<CR>', 'Show LSP Info')
 
 map('<S-h>', ':bprev<CR>', 'Previous tab')
 map('<S-l>', ':bnext<CR>', 'Next tab')
+-- TODO: make this different from the rust "go to parent mod" keybind
+map('<leader><BS>', '<cmd>cd ..<CR>', 'Go back/up a directory')
 
 -- perhaps A is Shift + Alt?
 -- map('<A-h>', ':lua require("harpoon.ui").nav_prev()<CR>', 'Harpoon: Previous')

@@ -395,6 +395,79 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>so', function()
         builtin.find_files { cwd = '~/Obsidian/' }
       end, { desc = '[S]earch [O]bsidian files' })
+
+      local pickers = require 'telescope.pickers'
+      local finders = require 'telescope.finders'
+      local conf = require('telescope.config').values
+      local actions = require 'telescope.actions'
+      local action_state = require 'telescope.actions.state'
+
+      local function change_directory_picker()
+        -- Use fd or find to get directories
+        -- local subcommand = table.concat({
+        --   'find . -type d',
+        --   "-not -path '*/\\.*'",
+        --   "-not -path '*/target/*'",
+        --   "-not -path '*/node_modules/*'",
+        -- }, ' ')
+
+        -- local handle = io.popen(subcommand)
+
+        -- local subcommand = table.concat({
+        --   'find . -type d (',
+        --   -- "-name '\\.*' -o",
+        --   "-name 'target' -o",
+        --   "-name 'node_modules'",
+        --   ') -prune -type d -print',
+        -- }, ' ')
+
+        -- I still see target as an option
+        local subcommand = table.concat({
+          'find . -type d',
+          "! -path '*/\\.*'",
+          "! -path '*/target/*'",
+          "! -path '*/node_modules/*'",
+        }, ' ')
+
+        local handle = io.popen(subcommand)
+
+        if not handle then
+          return
+        end
+        local result = handle:read '*a'
+        handle:close()
+
+        local dirs = {}
+        for line in result:gmatch '[^\r\n]+' do
+          table.insert(dirs, line)
+        end
+
+        pickers
+          .new({}, {
+            prompt_title = 'Change Directory',
+            finder = finders.new_table {
+              results = dirs,
+            },
+            sorter = conf.generic_sorter {},
+            attach_mappings = function(prompt_bufnr, map)
+              actions.select_default:replace(function()
+                actions.close(prompt_bufnr)
+                local selection = action_state.get_selected_entry()
+                local dir = selection[1]
+                vim.cmd.cd(dir)
+                print('Changed directory to: ' .. dir)
+                -- What is the first action I do after changing a directory?
+                -- For now I will just open Oil
+                -- Think about it, I can just use `tv dirs` to get to the right dir, and it doesn't look at git ignored folders
+                vim.cmd [[:Oil]]
+              end)
+              return true
+            end,
+          })
+          :find()
+      end
+
+      vim.keymap.set('n', '<leader>cd', change_directory_picker, { desc = '[C]hange [D]irectory' })
     end,
   },
 
@@ -494,11 +567,11 @@ require('lazy').setup({
           -- Jump to the definition of the word under your cursor.
           --  This is where a variable was first declared, or where a function is defined, etc.
           --  To jump back, press <C-t>.
-          map('grd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
+          map('gd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
 
           -- WARN: This is not Goto Definition, this is Goto Declaration.
           --  For example, in C this would take you to the header.
-          map('grD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
+          map('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
 
           -- Fuzzy find all the symbols in your current document.
           --  Symbols are things like variables, functions, types, etc.
@@ -511,7 +584,7 @@ require('lazy').setup({
           -- Jump to the type of the word under your cursor.
           --  Useful when you're not sure what type a variable is and you want to see
           --  the definition of its *type*, not where it was *defined*.
-          map('grt', require('telescope.builtin').lsp_type_definitions, '[G]oto [T]ype Definition')
+          map('gt', require('telescope.builtin').lsp_type_definitions, '[G]oto [T]ype Definition')
 
           -- This function resolves a difference between neovim nightly (version 0.11) and stable (version 0.10)
           ---@param client vim.lsp.Client
@@ -962,3 +1035,52 @@ require('lazy').setup({
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
+--
+
+function search_bible_verses()
+  local args = ''
+  local status, err = pcall(function()
+    args = vim.fn.input 'τόπος search: '
+  end)
+
+  if not status then
+    return
+  end
+
+  local output = {}
+
+  if args == '' then
+    output = vim.fn.systemlist 'topos -m quickfix'
+  else
+    output = vim.fn.systemlist('topos' .. vim.fn.shellescape(args) .. ' -m quickfix')
+  end
+
+  if vim.v.shell_error ~= 0 then
+    print 'Topos command failed!'
+    return
+  end
+
+  -- Parse and fill quickfix list
+  local qf_list = {}
+  for _, line in ipairs(output) do
+    local file, lnum, col, text = line:match '([^:]+):(%d+):(%d+):%s?(.*)'
+    if file and lnum and col and text then
+      table.insert(qf_list, {
+        filename = file,
+        lnum = tonumber(lnum),
+        col = tonumber(col),
+        text = text,
+      })
+    end
+  end
+
+  if #qf_list == 0 then
+    print 'No matches found.'
+    return
+  end
+
+  vim.fn.setqflist({}, ' ', { title = 'τόπος Results', items = qf_list })
+  require('telescope.builtin').quickfix()
+end
+
+vim.api.nvim_set_keymap('n', '<leader>sv', ':lua search_bible_verses()<CR>', { noremap = true, silent = true, desc = '[S]earch Bible [V]erses' })
