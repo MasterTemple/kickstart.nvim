@@ -1050,12 +1050,13 @@ function search_bible_verses()
   local output = {}
 
   if args == '' then
-    output = vim.fn.systemlist 'topos -m quickfix'
+    output = vim.fn.systemlist 'topos . -m quickfix'
   else
-    output = vim.fn.systemlist('topos' .. vim.fn.shellescape(args) .. ' -m quickfix')
+    output = vim.fn.systemlist('topos . ' .. vim.fn.shellescape(args) .. ' -m quickfix')
   end
 
   if vim.v.shell_error ~= 0 then
+    print(vim.v.shell_error)
     print 'Topos command failed!'
     return
   end
@@ -1083,4 +1084,74 @@ function search_bible_verses()
   require('telescope.builtin').quickfix()
 end
 
-vim.api.nvim_set_keymap('n', '<leader>sv', ':lua search_bible_verses()<CR>', { noremap = true, silent = true, desc = '[S]earch Bible [V]erses' })
+vim.api.nvim_set_keymap(
+  'n',
+  '<leader>svd',
+  ':lua search_bible_verses()<CR>',
+  { noremap = true, silent = true, desc = '[S]earch Bible [V]erses in [D]irectory' }
+)
+
+function search_local_bible_verses()
+  local args = ''
+  local status, err = pcall(function()
+    args = vim.fn.input 'τόπος search: '
+  end)
+  if not status then
+    return nil
+  end
+  -- Escape args for shell safety
+  if args ~= '' then
+    args = vim.fn.shellescape(args)
+  end
+
+  -- Get current buffer content
+  local buffer_lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
+
+  -- Run the external command `topos` with input from current buffer
+  -- Assumes `topos` reads from stdin and outputs in format: line:col:match_text
+  local output = vim.fn.systemlist('topos ' .. args .. ' -m quickfix ', buffer_lines)
+
+  -- Check if the command succeeded
+  if vim.v.shell_error ~= 0 then
+    vim.notify('Error running topos: ' .. table.concat(output, '\n'), vim.log.levels.ERROR)
+    return
+  end
+
+  local qf_list = {}
+  local buf_name = vim.api.nvim_buf_get_name(0) -- Use current buffer name
+
+  for _, line in ipairs(output) do
+    -- Adjust pattern based on actual output format
+    -- Example: "3:10:καὶ ἐν ἀρχῇ..."
+    local lnum, col, text = line:match '^:(%d+):(%d+):%s?(.*)'
+    if lnum and col and text then
+      table.insert(qf_list, {
+        filename = buf_name,
+        lnum = tonumber(lnum),
+        col = tonumber(col),
+        text = text,
+      })
+    end
+  end
+
+  if #qf_list == 0 then
+    print 'No matches found.'
+    return
+  end
+
+  -- Populate quickfix list
+  vim.fn.setqflist({}, ' ', { title = 'τόπος Results', items = qf_list })
+
+  -- Open Telescope quickfix preview
+  require('telescope.builtin').quickfix()
+end
+
+-- Optional: create a command for easy use
+vim.api.nvim_create_user_command('BibleSearch', search_local_bible_verses, {})
+
+vim.api.nvim_set_keymap(
+  'n',
+  '<leader>svf',
+  ':lua search_local_bible_verses()<CR>',
+  { noremap = true, silent = true, desc = '[S]earch Bible [V]erses in [F]ile' }
+)
