@@ -19,18 +19,23 @@ return {
       -- see below for full list of optional dependencies 👇
     },
     opts = {
-      templates = {
-        folder = 'Developer/templates/',
-        date_format = '%Y-%m-%d',
-        time_format = '%H:%M',
-      },
+      -- templates = {
+      --   folder = 'Developer/templates/',
+      --   date_format = '%Y-%m-%d',
+      --   time_format = '%H:%M',
+      -- },
       ui = {
-        enable = false,
+        enable = true,
+        -- enable = false,
       },
       workspaces = {
         {
           name = 'personal',
           path = '/home/dgmastertemple/Obsidian/',
+        },
+        {
+          name = 'library',
+          path = '/home/dgmastertemple/Dropbox/Apps/remotely-save/Dropbox Library/',
         },
       },
       daily_notes = {

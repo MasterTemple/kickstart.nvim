@@ -12,6 +12,8 @@ require 'custom.mappings'
 -- Set to true if you have a Nerd Font installed and selected in the terminal
 vim.g.have_nerd_font = false
 
+vim.o.conceallevel = 2
+
 -- [[ Setting options ]]
 -- See `:help vim.o`
 -- NOTE: You can change these options as you wish!
@@ -380,12 +382,18 @@ require('lazy').setup({
 
       -- It's also possible to pass additional configuration options.
       --  See `:help telescope.builtin.live_grep()` for information about particular keys
-      vim.keymap.set('n', '<leader>s/', function()
+      -- vim.keymap.set('n', '<leader>s/', function()
+      --   builtin.live_grep {
+      --     grep_open_files = true,
+      --     prompt_title = 'Live Grep in Open Files',
+      --   }
+      -- end, { desc = '[S]earch [/] in Open Files' })
+      vim.keymap.set('n', '<leader>se', function()
         builtin.live_grep {
           grep_open_files = true,
           prompt_title = 'Live Grep in Open Files',
         }
-      end, { desc = '[S]earch [/] in Open Files' })
+      end, { desc = '[S]earch Open Files in [E]ditor' })
 
       -- Shortcut for searching your Neovim configuration files
       vim.keymap.set('n', '<leader>sn', function()
@@ -1037,6 +1045,9 @@ require('lazy').setup({
 -- vim: ts=2 sts=2 sw=2 et
 --
 
+vim.api.nvim_set_keymap('n', '<leader>bl', ':BibleLsp<CR>', { noremap = true, silent = true, desc = '[B]ible [L]SP' })
+
+-- Searches all files in directory
 function search_bible_verses()
   local args = ''
   local status, err = pcall(function()
@@ -1047,17 +1058,16 @@ function search_bible_verses()
     return
   end
 
-  local output = {}
-
-  if args == '' then
-    output = vim.fn.systemlist 'topos . -m quickfix'
-  else
-    output = vim.fn.systemlist('topos . ' .. vim.fn.shellescape(args) .. ' -m quickfix')
+  -- Escape args for shell safety
+  if args ~= '' then
+    args = vim.fn.shellescape(args)
   end
 
+  local output = vim.fn.systemlist('topos . ' .. args .. ' -m quickfix')
+
+  -- Check if the command succeeded
   if vim.v.shell_error ~= 0 then
-    print(vim.v.shell_error)
-    print 'Topos command failed!'
+    vim.notify('Error running topos: ' .. table.concat(output, '\n'), vim.log.levels.ERROR)
     return
   end
 
@@ -1080,9 +1090,13 @@ function search_bible_verses()
     return
   end
 
+  -- Populate quickfix list
   vim.fn.setqflist({}, ' ', { title = 'τόπος Results', items = qf_list })
+  -- Open Telescope quickfix preview
   require('telescope.builtin').quickfix()
 end
+
+vim.api.nvim_create_user_command('SearchVersesInDirectory', search_bible_verses, {})
 
 vim.api.nvim_set_keymap(
   'n',
@@ -1091,14 +1105,16 @@ vim.api.nvim_set_keymap(
   { noremap = true, silent = true, desc = '[S]earch Bible [V]erses in [D]irectory' }
 )
 
+-- Searches only in current file
 function search_local_bible_verses()
   local args = ''
   local status, err = pcall(function()
     args = vim.fn.input 'τόπος search: '
   end)
   if not status then
-    return nil
+    return
   end
+
   -- Escape args for shell safety
   if args ~= '' then
     args = vim.fn.shellescape(args)
@@ -1107,8 +1123,6 @@ function search_local_bible_verses()
   -- Get current buffer content
   local buffer_lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
 
-  -- Run the external command `topos` with input from current buffer
-  -- Assumes `topos` reads from stdin and outputs in format: line:col:match_text
   local output = vim.fn.systemlist('topos ' .. args .. ' -m quickfix ', buffer_lines)
 
   -- Check if the command succeeded
@@ -1141,13 +1155,11 @@ function search_local_bible_verses()
 
   -- Populate quickfix list
   vim.fn.setqflist({}, ' ', { title = 'τόπος Results', items = qf_list })
-
   -- Open Telescope quickfix preview
   require('telescope.builtin').quickfix()
 end
 
--- Optional: create a command for easy use
-vim.api.nvim_create_user_command('BibleSearch', search_local_bible_verses, {})
+vim.api.nvim_create_user_command('SearchVersesInFile', search_local_bible_verses, {})
 
 vim.api.nvim_set_keymap(
   'n',
@@ -1155,3 +1167,163 @@ vim.api.nvim_set_keymap(
   ':lua search_local_bible_verses()<CR>',
   { noremap = true, silent = true, desc = '[S]earch Bible [V]erses in [F]ile' }
 )
+
+vim.api.nvim_create_user_command('ToposLsp', function()
+  vim.lsp.start { name = 'topos_lsp', cmd = { '/home/dgmastertemple/Development/rust/topos-lsp/target/release/topos-lsp' } }
+end, {})
+
+vim.api.nvim_create_user_command('BibleLsp', function()
+  vim.lsp.start { name = 'bible_lsp', cmd = { '/home/dgmastertemple/github/bible_lsp/target/release/bible_lsp' } }
+end, {})
+
+-- -- ftplugin/markdown.lua
+--
+-- local ns = vim.api.nvim_create_namespace 'quote_virtual_text'
+--
+-- local function update_quote_vt(bufnr)
+--   vim.api.nvim_buf_clear_namespace(bufnr, ns, 0, -1)
+--
+--   local cursor = vim.api.nvim_win_get_cursor(0)
+--   local cursor_line = cursor[1]
+--
+--   local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
+--   for i, line in ipairs(lines) do
+--     -- skip current cursor line (do not render)
+--     if i ~= cursor_line then
+--       -- match leading "> " groups
+--       local depth = 0
+--       for g in line:gmatch '>%s' do
+--         depth = depth + 1
+--       end
+--
+--       if depth > 0 then
+--         local virt = {}
+--         for _ = 1, depth do
+--           table.insert(virt, '│ ')
+--         end
+--         local virt_str = table.concat(virt)
+--
+--         -- place virtual text at col=0
+--         vim.api.nvim_buf_set_extmark(bufnr, ns, i - 1, 0, {
+--           virt_text = { { virt_str, '@markup.heading' } },
+--           virt_text_pos = 'overlay',
+--         })
+--
+--         vim.api.nvim_buf_set_extmark(bufnr, ns, i - 1, 0, {
+--           virt_text = { { 'Callout', 'Comment' } },
+--           virt_text_pos = 'eol',
+--         })
+--       end
+--     end
+--   end
+-- end
+--
+-- -- Update on cursor move + text change
+-- vim.api.nvim_create_autocmd({ 'CursorMoved', 'CursorMovedI', 'TextChanged', 'TextChangedI' }, {
+--   buffer = 0,
+--   callback = function()
+--     update_quote_vt(vim.api.nvim_get_current_buf())
+--   end,
+-- })
+
+-- ftplugin/markdown.lua
+
+-- ftplugin/markdown.lua
+--
+-- local ns = vim.api.nvim_create_namespace 'md_render'
+-- local bufnr = vim.api.nvim_get_current_buf()
+--
+-- -- local function update_rendering()
+-- --   vim.api.nvim_buf_clear_namespace(bufnr, ns, 0, -1)
+-- --
+-- --   local cursor = vim.api.nvim_win_get_cursor(0)[1]
+-- --   local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
+-- --
+-- --   for i, line in ipairs(lines) do
+-- --     if i ~= cursor then
+-- --       -- Only match if chain starts at beginning of line
+-- --       local start, finish = line:find '^(%>%s+)+'
+-- --       if start then
+-- --         local count = 0
+-- --         for _ in line:gmatch '^> ' do
+-- --           count = count + 1
+-- --         end
+-- --         if count > 0 then
+-- --           local virt = ('| '):rep(count)
+-- --           vim.api.nvim_buf_set_extmark(bufnr, ns, i - 1, 0, {
+-- --             virt_text = { { virt, 'Comment' } },
+-- --             virt_text_pos = 'overlay',
+-- --           })
+-- --         end
+-- --       end
+-- --     end
+-- --   end
+-- -- end
+-- --
+-- -- vim.api.nvim_create_autocmd({ 'CursorMoved', 'CursorMovedI', 'TextChanged', 'TextChangedI', 'BufEnter' }, {
+-- --   buffer = bufnr,
+-- --   callback = update_rendering,
+-- -- })
+--
+-- local rules = {}
+--
+-- -- API for adding rules
+-- local function add_rule(pattern, handler)
+--   table.insert(rules, { pattern = pattern, handler = handler })
+-- end
+--
+-- -- main renderer
+-- local function update_rendering()
+--   vim.api.nvim_buf_clear_namespace(bufnr, ns, 0, -1)
+--   local cursor = vim.api.nvim_win_get_cursor(0)[1]
+--   local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
+--
+--   for i, line in ipairs(lines) do
+--     if i ~= cursor then
+--       -- Apply each rule
+--       for _, r in ipairs(rules) do
+--         local s, e = line:find(r.pattern)
+--         if s then
+--           local virt_text, hl, col = r.handler(line:sub(s, e))
+--           vim.api.nvim_buf_set_extmark(bufnr, ns, i - 1, col or s - 1, {
+--             virt_text = { { virt_text, hl or 'Comment' } },
+--             virt_text_pos = 'inline',
+--             end_row = i - 1,
+--             end_col = e + 2,
+--             sign_text = 'CL',
+--           })
+--         end
+--       end
+--     end
+--   end
+-- end
+--
+-- vim.api.nvim_create_autocmd({ 'CursorMoved', 'CursorMovedI', 'TextChanged', 'TextChangedI', 'BufEnter' }, {
+--   buffer = bufnr,
+--   callback = update_rendering,
+-- })
+--
+-- -- <sup>123</sup>  →  123 (italic, dim)
+-- add_rule('<sup>%d+</sup>', function(match)
+--   local num = match:match '%d+'
+--   return num, 'MarkdownSuperscript', nil
+-- end)
+--
+-- -- Define your highlight group
+-- vim.api.nvim_set_hl(0, 'MarkdownSuperscript', {
+--   italic = true,
+--   fg = '#aaaaaa',
+-- })
+--
+-- add_rule('%[!%u+|%l+%]', function(match)
+--   local label = match:match '!([A-Z]+)'
+--   return label, 'MarkdownCallout', nil
+-- end)
+--
+-- vim.api.nvim_set_hl(0, 'MarkdownCallout', {
+--   bold = true,
+--   fg = '#000000', -- gold; change to whatever
+--   bg = '#ffd700', -- gold; change to whatever
+-- })
+
+require 'custom.scripts.markdown_render'
