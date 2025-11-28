@@ -1326,4 +1326,4 @@ end, {})
 --   bg = '#ffd700', -- gold; change to whatever
 -- })
 
-require 'custom.scripts.markdown_render'
+-- require 'custom.scripts.markdown_render'

@@ -1,0 +1,25 @@
+-- return {
+--   -- '/home/dgmastertemple/Development/lua/better-callouts.nvim', -- Local dev path
+--   dir = '/home/dgmastertemple/Development/lua/better-callouts.nvim', -- Local dev path
+--   name = 'better-callouts',
+--   ft = 'markdown',
+--   config = function()
+--     require('better-callouts').setup {
+--       -- Custom Map
+--       callouts = {
+--         bug = { icon = '', highlight = 'DiagnosticError' },
+--         custom = { icon = '★', highlight = 'Special' },
+--       },
+--       -- Custom Fallback Logic
+--       fallback = function(name)
+--         -- Example: generate a dynamic icon or default based on string length
+--         return {
+--           icon = name:sub(1, 1):upper(), -- First letter as icon
+--           highlight = 'Comment',
+--         }
+--       end,
+--     }
+--     print 'Better Callouts Loaded!'
+--   end,
+--   lazy = false,
+-- }
