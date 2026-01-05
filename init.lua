@@ -928,7 +928,33 @@ require('lazy').setup({
   },
 
   -- Highlight todo, notes, etc in comments
-  { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
+  {
+    'folke/todo-comments.nvim',
+    event = 'VimEnter',
+    dependencies = { 'nvim-lua/plenary.nvim' },
+    opts = {
+      signs = true,
+      keywords = {
+        COMPLETE = { icon = '󰗠 ', color = 'hint', alt = { 'complete' } },
+        INCOMPLETE = { icon = ' ', color = 'error', alt = { 'incomplete' } },
+      },
+    },
+  },
+
+  -- {
+  --   'wfxr/minimap.vim',
+  --   event = 'VimEnter',
+  --   lazy = false,
+  -- },
+
+  {
+    'simrat39/symbols-outline.nvim',
+    event = 'VimEnter',
+    lazy = false,
+    config = function()
+      require('symbols-outline').setup()
+    end,
+  },
 
   { -- Collection of various small independent plugins/modules
     'echasnovski/mini.nvim',
@@ -1176,4 +1202,20 @@ vim.api.nvim_create_user_command('BibleLsp', function()
   vim.lsp.start { name = 'bible_lsp', cmd = { '/home/dgmastertemple/github/bible_lsp/target/release/bible_lsp' } }
 end, {})
 
+vim.api.nvim_set_keymap('n', '<leader>jl', ':JSONLsp<CR>', { noremap = true, silent = true, desc = '[B]ible [L]SP' })
+vim.api.nvim_create_user_command('JSONLsp', function()
+  vim.lsp.start { name = 'bible_lsp', cmd = { '/home/dgmastertemple/Development/rust/json_path_from_line_col_lsp/target/debug/json_path_from_line_col_lsp' } }
+end, {})
+
 require 'custom.scripts.render_verse_numbers'
+
+-- require('vim.treesitter.query').set(
+--   'markdown',
+--   'highlights',
+--   [[
+-- ;From MDeiml/tree-sitter-markdown
+-- [
+--   (fenced_code_block_delimiter)
+-- ] @punctuation.delimiter
+-- ]]
+-- )
