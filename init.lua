@@ -1071,7 +1071,32 @@ require('lazy').setup({
 -- vim: ts=2 sts=2 sw=2 et
 --
 
-vim.api.nvim_set_keymap('n', '<leader>bl', ':BibleLsp<CR>', { noremap = true, silent = true, desc = '[B]ible [L]SP' })
+-- -----------------------------------------------------------------
+-- Restart Bible LSP (kill + start) – single keybinding
+-- -----------------------------------------------------------------
+local function restart_bible_lsp()
+  -- Kill any running bible_lsp process (ignore errors)
+  vim.cmd 'silent! !pkill -f bible_lsp'
+
+  -- Small pause (optional, but safe)
+  vim.wait(100)
+
+  -- Start the LSP again
+  vim.cmd 'BibleLsp'
+end
+
+-- Optional user command
+vim.api.nvim_create_user_command('RestartBibleLsp', restart_bible_lsp, {})
+
+-- Map <leader>br to the restart function
+vim.keymap.set('n', '<leader>bl', restart_bible_lsp, { silent = true, desc = '[B]ible LSP [R]estart' })
+
+-- vim.api.nvim_set_keymap('n', '<leader>bl', function()
+--   vim.cmd [[:!pkill bible_lsp<CR>]]
+--   vim.cmd [[:BibleLsp<CR>]]
+-- end, { noremap = true, silent = true, desc = '[B]ible [L]SP' })
+-- vim.api.nvim_set_keymap('n', '<leader>bl', ':BibleLsp<CR>', { noremap = true, silent = true, desc = '[B]ible [L]SP' })
+-- vim.api.nvim_set_keymap('n', '<leader>bk', ':!pkill bible_lsp<CR>', { noremap = true, silent = true, desc = '[B]ible LSP [K]ill' })
 
 -- Searches all files in directory
 function search_bible_verses()
