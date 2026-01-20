@@ -952,7 +952,12 @@ require('lazy').setup({
     event = 'VimEnter',
     lazy = false,
     config = function()
-      require('symbols-outline').setup()
+      require('symbols-outline').setup {
+        -- auto_preview = true,
+        position = 'right',
+        relative_width = false,
+        width = 48,
+      }
     end,
   },
 
