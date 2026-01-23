@@ -554,7 +554,10 @@ require('lazy').setup({
 
           -- Rename the variable under your cursor.
           --  Most Language Servers support renaming across files, etc.
-          map('<leader>ra', vim.lsp.buf.rename, '[R]e[n]ame')
+          -- map('<leader>ra', vim.lsp.buf.rename, '[R]e[n]ame')
+          map('<leader>ra', ':Lspsaga rename<CR>', '[R]e[n]ame')
+          -- https://nvimdev.github.io/lspsaga/outline/
+          map('<leader>lo', ':Lspsaga outline<CR>', '[L]SP [O]utline')
           -- map('<leader>fm', vim.lsp.buf.format { async = true }, '[F]or[m]at Document')
           map('<leader>fm', function()
             vim.lsp.buf.format { async = true }
@@ -563,7 +566,8 @@ require('lazy').setup({
           -- Execute a code action, usually your cursor needs to be on top of an error
           -- or a suggestion from your LSP for this to activate.
           -- map('gra', vim.lsp.buf.code_action, '[G]oto Code [A]ction', { 'n', 'x' })
-          map('<leader><enter>', vim.lsp.buf.code_action, '[G]oto Code [A]ction', { 'n', 'x' })
+          -- map('<leader><enter>', vim.lsp.buf.code_action, '[G]oto Code [A]ction', { 'n', 'x' })
+          map('<leader><enter>', ':Lspsaga code_action<CR>', '[G]oto Code [A]ction', { 'n', 'x' })
 
           -- Find references for the word under your cursor.
           map('grr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
@@ -738,6 +742,18 @@ require('lazy').setup({
       local ensure_installed = vim.tbl_keys(servers or {})
       vim.list_extend(ensure_installed, {
         'stylua', -- Used to format Lua code
+        'emmet-language-server',
+        'harper-ls',
+        'lua-language-server',
+        'markdown-oxide',
+        'prettier',
+        'pyright',
+        'rust-analyzer',
+        'shfmt',
+        'stylua',
+        'tinymist',
+        'typescript-language-server',
+        'uv',
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
@@ -827,6 +843,11 @@ require('lazy').setup({
           --     require('luasnip.loaders.from_vscode').lazy_load()
           --   end,
           -- },
+          { 'bydlw98/blink-cmp-env' },
+          -- TODO:
+          -- https://github.com/jdrupal-dev/css-vars.nvim
+          --
+          { 'epwalsh/obsidian.nvim' },
         },
         opts = {},
       },
@@ -1237,7 +1258,7 @@ vim.api.nvim_create_user_command('JSONLsp', function()
   vim.lsp.start { name = 'bible_lsp', cmd = { '/home/dgmastertemple/Development/rust/json_path_from_line_col_lsp/target/debug/json_path_from_line_col_lsp' } }
 end, {})
 
-require 'custom.scripts.render_verse_numbers'
+-- require 'custom.scripts.render_verse_numbers'
 
 -- require('vim.treesitter.query').set(
 --   'markdown',
