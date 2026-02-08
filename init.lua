@@ -555,13 +555,17 @@ require('lazy').setup({
           -- Rename the variable under your cursor.
           --  Most Language Servers support renaming across files, etc.
           -- map('<leader>ra', vim.lsp.buf.rename, '[R]e[n]ame')
-          map('<leader>ra', ':Lspsaga rename<CR>', '[R]e[n]ame')
+          map('<leader>ra', ':Lspsaga rename<CR>', '[R]ename [A]ll')
           -- https://nvimdev.github.io/lspsaga/outline/
           map('<leader>lo', ':Lspsaga outline<CR>', '[L]SP [O]utline')
           -- map('<leader>fm', vim.lsp.buf.format { async = true }, '[F]or[m]at Document')
-          map('<leader>fm', function()
+          map('<leader>rf', function()
             vim.lsp.buf.format { async = true }
-          end, '[F]or[m]at Document')
+          end, '[R]e-[F]ormat Document')
+
+          -- mkmv
+          -- map('<leader>fn', ':CreateInFolder<CR>', '[F]ile [N]ew')
+          -- map('<leader>fm', ':MoveToFolder<CR>', '[F]ile [M]ove')
 
           -- Execute a code action, usually your cursor needs to be on top of an error
           -- or a suggestion from your LSP for this to activate.
