@@ -1250,6 +1250,11 @@ vim.api.nvim_set_keymap(
 )
 
 vim.api.nvim_create_user_command('ToposLsp', function()
+  -- Kill any running topos-lsp process (ignore errors)
+  vim.cmd 'silent! !pkill -f topos-lsp'
+  -- Small pause (optional, but safe)
+  vim.wait(100)
+  -- Start the LSP again
   vim.lsp.start { name = 'topos_lsp', cmd = { '/home/dgmastertemple/Development/rust/topos-lsp/target/release/topos-lsp' } }
 end, {})
 
@@ -1260,6 +1265,15 @@ end, {})
 vim.api.nvim_set_keymap('n', '<leader>jl', ':JSONLsp<CR>', { noremap = true, silent = true, desc = '[B]ible [L]SP' })
 vim.api.nvim_create_user_command('JSONLsp', function()
   vim.lsp.start { name = 'bible_lsp', cmd = { '/home/dgmastertemple/Development/rust/json_path_from_line_col_lsp/target/debug/json_path_from_line_col_lsp' } }
+end, {})
+
+vim.api.nvim_create_user_command('XMLsp', function()
+  -- Kill any running topos-lsp process (ignore errors)
+  vim.cmd 'silent! !pkill -f xml-span-lsp'
+  -- Small pause (optional, but safe)
+  vim.wait(100)
+  -- Start the LSP again
+  vim.lsp.start { name = 'xml-span-lsp', cmd = { '/home/dgmastertemple/Development/rust/xml-span-lsp/target/release/xml-span-lsp' } }
 end, {})
 
 -- require 'custom.scripts.render_verse_numbers'

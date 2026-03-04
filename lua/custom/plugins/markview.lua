@@ -8,11 +8,19 @@ return {
       enable = false,
     },
     markdown = {
+      -- https://github.com/OXY2DEV/markview.nvim/wiki/Markdown#list_items
       list_items = {
         enable = true,
         wrap = true,
-        shift_width = 0,
-        -- indent_size = 2,
+        shift_width = 1,
+        indent_size = 0,
+        marker_minus = {
+          add_padding = true,
+          conceal_on_checkboxes = true,
+
+          text = '-',
+          hl = 'MarkviewListItemMinus',
+        },
       },
       -- enable_hybrid_mode = true,
       block_quotes = {
