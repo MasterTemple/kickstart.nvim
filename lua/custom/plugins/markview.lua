@@ -10,7 +10,7 @@ return {
     markdown = {
       -- https://github.com/OXY2DEV/markview.nvim/wiki/Markdown#list_items
       list_items = {
-        enable = true,
+        enable = false,
         wrap = true,
         shift_width = 1,
         indent_size = 0,
@@ -23,9 +23,28 @@ return {
         },
       },
       -- enable_hybrid_mode = true,
+      -- https://www.nerdfonts.com/cheat-sheet
       block_quotes = {
         enable = true,
         wrap = true,
+        ['term'] = {
+          hl = '@constant.macro',
+          preview = '󱀍 Term',
+          title = true,
+          icon = '󱀍',
+        },
+        ['warn'] = {
+          hl = '@comment.warning',
+          preview = ' Warning',
+          title = true,
+          icon = '',
+        },
+        ['warning'] = {
+          hl = '@comment.warning',
+          preview = ' Warning',
+          title = true,
+          icon = '',
+        },
         ['bible'] = {
           hl = 'MarkviewBlockQuoteNote',
           preview = ' Bible',

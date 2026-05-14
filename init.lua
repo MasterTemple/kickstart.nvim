@@ -564,8 +564,8 @@ require('lazy').setup({
           end, '[R]e-[F]ormat Document')
 
           -- mkmv
-          -- map('<leader>fn', ':CreateInFolder<CR>', '[F]ile [N]ew')
-          -- map('<leader>fm', ':MoveToFolder<CR>', '[F]ile [M]ove')
+          map('<leader>fn', ':CreateInFolder<CR>', '[F]ile [N]ew')
+          map('<leader>fm', ':MoveToFolder<CR>', '[F]ile [M]ove')
 
           -- Execute a code action, usually your cursor needs to be on top of an error
           -- or a suggestion from your LSP for this to activate.
@@ -752,6 +752,7 @@ require('lazy').setup({
         'markdown-oxide',
         'prettier',
         'pyright',
+        'ruff',
         'rust-analyzer',
         'shfmt',
         'stylua',
@@ -1002,7 +1003,7 @@ require('lazy').setup({
       -- - saiw) - [S]urround [A]dd [I]nner [W]ord [)]Paren
       -- - sd'   - [S]urround [D]elete [']quotes
       -- - sr)'  - [S]urround [R]eplace [)] [']
-      require('mini.surround').setup()
+      -- require('mini.surround').setup()
 
       -- Simple and easy statusline.
       --  You could remove this setup call if you don't like it,
@@ -1288,3 +1289,19 @@ end, {})
 -- ] @punctuation.delimiter
 -- ]]
 -- )
+--
+
+if vim.g.neovide then
+  vim.g.neovide_disable_all_animations = 1
+  vim.g.neovide_cursor_smooth_blink = true
+  vim.g.neovide_cursor_animation_length = 0.0
+  vim.g.neovide_cursor_short_animation_length = 0.0
+  vim.g.neovide_cursor_trail_size = 0.0
+
+  -- Allow for font resizing in Neovide application
+  vim.keymap.set({ 'n', 'v' }, '<C-+>', ':lua vim.g.neovide_scale_factor = vim.g.neovide_scale_factor + 0.1<CR>', { silent = true })
+  vim.keymap.set({ 'n', 'v' }, '<C-->', ':lua vim.g.neovide_scale_factor = vim.g.neovide_scale_factor - 0.1<CR>', { silent = true })
+  vim.keymap.set({ 'n', 'v' }, '<C-0>', ':lua vim.g.neovide_scale_factor = 1<CR>', { silent = true })
+end
+
+vim.api.nvim_set_hl(0, 'Visual', { reverse = true })
